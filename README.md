@@ -36,7 +36,7 @@ This project consolidates fragmented water-quality records from CPCB, CGWB, and 
 - **Python** (Data Cleaning, Feature Engineering, ML Models)
 - **Pandas, NumPy, Scikit-learn, XGBoost**
 - **Matplotlib / Seaborn** (Visualization)
-- **ARIMA / LSTM (Planned Forecasting)**
+
 
 ---
 
