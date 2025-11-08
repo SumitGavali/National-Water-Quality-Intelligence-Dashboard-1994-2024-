@@ -53,6 +53,17 @@ This project consolidates fragmented water-quality records from CPCB, CGWB, and 
 | **Social & Population Context Layer** | Links environmental impact to human geography |
 
 ---
+<img width="1169" height="656" alt="image" src="https://github.com/user-attachments/assets/bf79f639-945a-4c80-8825-bd187cdcb370" />
+<img width="1162" height="656" alt="image" src="https://github.com/user-attachments/assets/0c00d230-c6bf-4451-82c8-53090774240b" />
+<img width="1166" height="651" alt="image" src="https://github.com/user-attachments/assets/9955291c-03d5-4d03-8b3a-2e85835f3837" />
+<img width="1168" height="656" alt="image" src="https://github.com/user-attachments/assets/568f30af-ede5-483f-8e97-a8736c2de09d" />
+<img width="1137" height="632" alt="image" src="https://github.com/user-attachments/assets/3ea7cb7a-add2-4a4d-af79-f28cabd44374" />
+<img width="1171" height="652" alt="image" src="https://github.com/user-attachments/assets/9d2ffd52-e0ac-41e3-b51b-bae7e15bfc49" />
+
+
+
+
+---
 
 ##  Machine Learning Pipeline Overview
 
