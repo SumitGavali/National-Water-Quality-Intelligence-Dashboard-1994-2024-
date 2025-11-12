@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Water Quality Prediction System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .app-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .input-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .result-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .range-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .result-card {
+            text-align: center;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .result-potable {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+        }
+
+        .result-not-potable {
+            background: linear-gradient(135deg, #f44336, #da190b);
+            color: white;
+        }
+
+        .result-default {
+            background: #f5f5f5;
+            color: #666;
+        }
+
+        .result-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .result-status {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .result-confidence {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .insights-section {
+            margin-top: 20px;
+        }
+
+        .insight-item {
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+        }
+
+        .insight-warning {
+            border-left-color: #ff9800;
+            background: #fff3e0;
+        }
+
+        .insight-danger {
+            border-left-color: #f44336;
+            background: #ffebee;
+        }
+
+        .factors-section {
+            margin-top: 20px;
+        }
+
+        .factor-item {
+            padding: 8px 12px;
+            margin-bottom: 5px;
+            background: #e3f2fd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .api-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 15px;
+            border-radius: 20px;
+            color: white;
+            font-weight: 600;
+            z-index: 1000;
+        }
+
+        .status-healthy {
+            background: #4CAF50;
+        }
+
+        .status-error {
+            background: #f44336;
+        }
+
+        .batch-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .batch-toggle {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- API Status Indicator -->
+        <div class="api-status" id="apiStatus">
+            Checking API...
+        </div>
+
+        <!-- Header -->
+        <div class="header">
+            <h1>💧 Water Quality Prediction System</h1>
+            <p>AI-powered water potability analysis using machine learning</p>
+        </div>
+
+        <!-- Main Application Container -->
+        <div class="app-container">
+            <!-- Input Section -->
+            <div class="input-section">
+                <h2>Water Quality Parameters</h2>
+                <p style="color: #666; margin-bottom: 20px;">Enter the water quality measurements to check potability
+                </p>
+
+                <form id="predictionForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="ph">pH Level</label>
+                            <input type="number" id="ph" name="ph" step="0.1" min="0" max="14" value="7.1" required>
+                            <div class="range-info">Optimal: 6.5 - 8.5</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="Hardness">Hardness (mg/L)</label>
+                            <input type="number" id="Hardness" name="Hardness" step="1" min="0" value="150" required>
+                            <div class="range-info">Optimal: &lt; 200 mg/L</div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="Solids">Total Solids (ppm)</label>
+                            <input type="number" id="Solids" name="Solids" step="100" min="0" value="25000" required>
+                            <div class="range-info">TDS: &lt; 500 ppm ideal</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="Chloramines">Chloramines (ppm)</label>
+                            <input type="number" id="Chloramines" name="Chloramines" step="0.1" min="0" value="3.5"
+                                required>
+                            <div class="range-info">Optimal: &lt; 4 ppm</div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="Sulfate">Sulfate (mg/L)</label>
+                            <input type="number" id="Sulfate" name="Sulfate" step="1" min="0" value="200" required>
+                            <div class="range-info">Max: 250 mg/L</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="Conductivity">Conductivity (μS/cm)</label>
+                            <input type="number" id="Conductivity" name="Conductivity" step="1" min="0" value="400"
+                                required>
+                            <div class="range-info">Fresh: 50-500 μS/cm</div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="Organic_carbon">Organic Carbon (ppm)</label>
+                            <input type="number" id="Organic_carbon" name="Organic_carbon" step="0.1" min="0"
+                                value="2.5" required>
+                            <div class="range-info">Lower is better</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="Trihalomethanes">Trihalomethanes (μg/L)</label>
+                            <input type="number" id="Trihalomethanes" name="Trihalomethanes" step="1" min="0" value="65"
+                                required>
+                            <div class="range-info">Max: 80 μg/L</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="Turbidity">Turbidity (NTU)</label>
+                        <input type="number" id="Turbidity" name="Turbidity" step="0.1" min="0" value="3.2" required>
+                        <div class="range-info">Optimal: &lt; 5 NTU</div>
+                    </div>
+
+                    <button type="submit" class="submit-btn" id="predictBtn">
+                        🔍 Analyze Water Quality
+                    </button>
+                </form>
+
+                <!-- Loading Indicator -->
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Analyzing water quality parameters...</p>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div class="result-section">
+                <h2>Analysis Results</h2>
+                <div class="result-card result-default" id="resultCard">
+                    <div class="result-icon">💧</div>
+                    <div class="result-status">Awaiting Analysis</div>
+                    <div class="result-confidence">Submit water parameters to get started</div>
+                </div>
+
+                <!-- Quality Insights -->
+                <div class="insights-section" id="insightsSection" style="display: none;">
+                    <h3>Quality Insights</h3>
+                    <div id="insightsList"></div>
+                </div>
+
+                <!-- Influencing Factors -->
+                <div class="factors-section" id="factorsSection" style="display: none;">
+                    <h3>Top Influencing Factors</h3>
+                    <div id="factorsList"></div>
+                </div>
+
+                <!-- Detailed Probabilities -->
+                <div id="probabilitiesSection" style="display: none; margin-top: 20px;">
+                    <h3>Detailed Analysis</h3>
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span>Potable Water Probability:</span>
+                            <strong id="potableProb">0%</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Non-Potable Water Probability:</span>
+                            <strong id="notPotableProb">0%</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Batch Prediction Section -->
+        <div class="batch-section">
+            <button class="batch-toggle" onclick="toggleBatchSection()">📊 Batch Analysis Mode</button>
+            <div id="batchSection" style="display: none;">
+                <h3>Batch Water Quality Analysis</h3>
+                <p>Analyze multiple water samples at once (Paste CSV data or multiple JSON entries)</p>
+                <textarea id="batchData" rows="6"
+                    style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; margin: 10px 0;"
+                    placeholder='Paste multiple samples as JSON array:
+[
+  {"ph": 7.1, "Hardness": 150, "Solids": 25000, "Chloramines": 3.5, "Sulfate": 200, "Conductivity": 400, "Organic_carbon": 2.5, "Trihalomethanes": 65, "Turbidity": 3.2},
+  {"ph": 6.8, "Hardness": 180, "Solids": 28000, "Chloramines": 4.2, "Sulfate": 220, "Conductivity": 380, "Organic_carbon": 3.1, "Trihalomethanes": 75, "Turbidity": 4.1}
+]'></textarea>
+                <button class="submit-btn" onclick="analyzeBatch()">🚀 Analyze Batch Samples</button>
+                <div id="batchResults" style="margin-top: 20px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://127.0.0.1:5000';
+
+        // Check API health on load
+        async function checkAPIHealth() {
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+
+                const statusElement = document.getElementById('apiStatus');
+                if (data.status === 'healthy') {
+                    statusElement.textContent = '✅ API Connected';
+                    statusElement.className = 'api-status status-healthy';
+                } else {
+                    statusElement.textContent = '❌ API Error';
+                    statusElement.className = 'api-status status-error';
+                }
+            } catch (error) {
+                const statusElement = document.getElementById('apiStatus');
+                statusElement.textContent = '❌ API Offline';
+                statusElement.className = 'api-status status-error';
+            }
+        }
+
+        // Handle form submission
+        document.getElementById('predictionForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const submitBtn = document.getElementById('predictBtn');
+            const loading = document.getElementById('loading');
+
+            // Show loading
+            submitBtn.disabled = true;
+            loading.style.display = 'block';
+
+            try {
+                // Get form data
+                const formData = new FormData(this);
+                const data = {};
+                formData.forEach((value, key) => {
+                    data[key] = parseFloat(value);
+                });
+
+                // Make API call
+                const response = await fetch(`${API_BASE}/predict`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                // Display results
+                displayResults(result);
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error analyzing water quality. Please try again.');
+            } finally {
+                // Hide loading
+                submitBtn.disabled = false;
+                loading.style.display = 'none';
+            }
+        });
+
+        // Display prediction results
+        function displayResults(result) {
+            const resultCard = document.getElementById('resultCard');
+            const insightsSection = document.getElementById('insightsSection');
+            const factorsSection = document.getElementById('factorsSection');
+            const probabilitiesSection = document.getElementById('probabilitiesSection');
+
+            // Update result card
+            if (result.prediction === 1) {
+                resultCard.className = 'result-card result-potable';
+                resultCard.innerHTML = `
+                    <div class="result-icon">✅</div>
+                    <div class="result-status">POTABLE WATER</div>
+                    <div class="result-confidence">Confidence: ${(result.confidence * 100).toFixed(1)}%</div>
+                `;
+            } else {
+                resultCard.className = 'result-card result-not-potable';
+                resultCard.innerHTML = `
+                    <div class="result-icon">❌</div>
+                    <div class="result-status">NOT POTABLE</div>
+                    <div class="result-confidence">Confidence: ${(result.confidence * 100).toFixed(1)}%</div>
+                `;
+            }
+
+            // Display insights
+            if (result.quality_insights) {
+                const insightsList = document.getElementById('insightsList');
+                insightsList.innerHTML = '';
+                result.quality_insights.forEach(insight => {
+                    const insightElement = document.createElement('div');
+                    insightElement.className = 'insight-item';
+                    if (insight.includes('⚠️')) insightElement.className += ' insight-warning';
+                    if (insight.includes('🚫')) insightElement.className += ' insight-danger';
+                    insightElement.textContent = insight;
+                    insightsList.appendChild(insightElement);
+                });
+                insightsSection.style.display = 'block';
+            }
+
+            // Display influencing factors
+            if (result.top_influencing_factors) {
+                const factorsList = document.getElementById('factorsList');
+                factorsList.innerHTML = '';
+                result.top_influencing_factors.forEach(factor => {
+                    const factorElement = document.createElement('div');
+                    factorElement.className = 'factor-item';
+                    factorElement.textContent = factor;
+                    factorsList.appendChild(factorElement);
+                });
+                factorsSection.style.display = 'block';
+            }
+
+            // Display probabilities
+            if (result.probabilities) {
+                document.getElementById('potableProb').textContent = `${(result.probabilities.potable * 100).toFixed(1)}%`;
+                document.getElementById('notPotableProb').textContent = `${(result.probabilities.not_potable * 100).toFixed(1)}%`;
+                probabilitiesSection.style.display = 'block';
+            }
+        }
+
+        // Batch analysis functions
+        function toggleBatchSection() {
+            const batchSection = document.getElementById('batchSection');
+            batchSection.style.display = batchSection.style.display === 'none' ? 'block' : 'none';
+        }
+
+        async function analyzeBatch() {
+            const batchData = document.getElementById('batchData').value;
+            const batchResults = document.getElementById('batchResults');
+
+            try {
+                const samples = JSON.parse(batchData);
+
+                const response = await fetch(`${API_BASE}/batch_predict`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ samples })
+                });
+
+                const result = await response.json();
+
+                // Display batch results
+                let html = `<h4>Batch Results (${result.total_samples} samples)</h4>`;
+                result.results.forEach((sampleResult, index) => {
+                    const statusClass = sampleResult.status === 'POTABLE' ? 'result-potable' : 'result-not-potable';
+                    html += `
+                        <div class="result-card ${statusClass}" style="margin-bottom: 10px; padding: 15px;">
+                            <strong>Sample ${index + 1}:</strong> ${sampleResult.status} 
+                            <span style="float: right;">Confidence: ${(sampleResult.confidence * 100).toFixed(1)}%</span>
+                        </div>
+                    `;
+                });
+
+                batchResults.innerHTML = html;
+
+            } catch (error) {
+                batchResults.innerHTML = `<div style="color: red;">Error parsing or analyzing batch data: ${error.message}</div>`;
+            }
+        }
+
+        // Initialize
+        checkAPIHealth();
+
+        // Auto-check API health every 30 seconds
+        setInterval(checkAPIHealth, 30000);
+    </script>
+</body>
+
+</html>
